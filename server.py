@@ -9,6 +9,12 @@ import sys
 reload(sys)  
 sys.setdefaultencoding('utf8')
 
+
+client = pymongo.MongoClient(os.environ['MONGODB_URI'])
+db = client.get_default_database()
+active = db['active']
+
+
 bot = telegram.Bot('395089971:AAGdmNnerGxByQZqhjen2hAGIZ2CBW-WcnY')
 
 s3 = boto3.client(
@@ -21,6 +27,7 @@ app = Flask(__name__)
 
 @app.route("/create", methods=['POST'])
 def randomword():
+   randoms = request.form['random']
    name = request.form['name']
    address = request.form['address']
    passport_number = request.form['passport_number']
@@ -50,7 +57,7 @@ def randomword():
       print count
       document.add_paragraph(paragraph)
    docname= name+'.docx'
-   document.save(name+'.docx')
+   document.save(name+'-'+randoms+'.docx')
    s3.upload_file(docname,'powerofattorneybot',docname)
    userfilenamealphabets = []
    for char in docname:
@@ -63,7 +70,7 @@ def randomword():
    aws_url='https://s3-us-west-1.amazonaws.com/powerofattorneybot/'+aws_url_filename
    
 ##   bot.send_document(chat_id='89380112',document=userfile)
-
+   active.update({'name':name, 'random':randoms},{'$set':{'aws_url':aws_url}})
    try:
       return jsonify(status='success',name=name,address = address,passport_number=passport_number,url=aws_url,paras=str(len(file_text_comps)))
    except:
