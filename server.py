@@ -56,8 +56,8 @@ def randomword():
       count = count+ 1
       print count
       document.add_paragraph(paragraph)
-   docname= name+'.docx'
-   document.save(name+'-'+randoms+'.docx')
+   docname= name+'-'+randoms+'.docx'
+   document.save(docname)
    s3.upload_file(docname,'powerofattorneybot',docname)
    userfilenamealphabets = []
    for char in docname:
@@ -70,6 +70,7 @@ def randomword():
    aws_url='https://s3-us-west-1.amazonaws.com/powerofattorneybot/'+aws_url_filename
    
 ##   bot.send_document(chat_id='89380112',document=userfile)
+
    active.update({'name':name, 'random':randoms},{'$set':{'aws_url':aws_url}})
    try:
       return jsonify(status='success',name=name,address = address,passport_number=passport_number,url=aws_url,paras=str(len(file_text_comps)))
